@@ -1,268 +1,122 @@
-# Active Directory IAM Lab
+# Active Directory Sysadmin & IAM Lab
 
-A hands-on Windows Server / Active Directory home lab built and tested inside a virtual machine to practice core system-administration skills and PowerShell automation.
+A Windows Server / Active Directory home lab built to practice system administration, PowerShell automation, and identity lifecycle management.
 
 ## Project Overview
 
-This project simulates a small business environment using a virtualized Windows Server lab. Inside the VM, I configured Active Directory Domain Services (AD DS), designed an organizational-unit structure, created department security groups, added fictional employee accounts, configured Group Policy, and built a CSV-driven PowerShell provisioning workflow.
+This project simulates a small company environment in the `lab.local` Active Directory domain. The lab includes organizational units, department security groups, fictional employee accounts, Group Policy, and PowerShell automation for the Joiner-Mover-Leaver (JML) identity lifecycle.
 
-The goal of the project was to move beyond GUI-only Active Directory administration and begin automating repeatable sysadmin tasks with PowerShell.
-
-## Lab Environment
-
-The project was completed in a virtual machine rather than on physical enterprise hardware.
-
-### Virtualized Environment
-
-- Windows Server virtual machine
-- Active Directory Domain Services (AD DS)
-- Domain: `lab.local`
-- Fictional company OU: `Trey's Company`
-- Active Directory Users and Computers (ADUC)
-- Group Policy Management
-- Windows PowerShell / ActiveDirectory module
-
-The VM provided an isolated environment where I could safely create, test, troubleshoot, and automate Active Directory administration without affecting a production network.
-
-> The virtual machine itself is not included in this repository. This repository contains the scripts, sample data, documentation, and screenshots that demonstrate the work completed inside the lab.
+The goal is to move beyond GUI-only administration and practice repeatable, auditable identity-management workflows while validating changes in Active Directory Users and Computers (ADUC).
 
 ## Skills Demonstrated
 
-- Windows Server administration
-- Active Directory Domain Services
-- Active Directory Users and Computers
-- Organizational Unit (OU) design
-- User and security-group administration
+- Windows Server and Active Directory Domain Services (AD DS)
+- Active Directory Users and Computers (ADUC)
+- Organizational Unit (OU) design and security groups
 - Group Policy administration
-- PowerShell
-- ActiveDirectory PowerShell module
-- CSV-driven user provisioning
-- Username generation
-- Department-to-OU mapping
-- Department-to-security-group mapping
-- Duplicate-account detection
-- Basic PowerShell error handling
-- Verification of OU placement and group membership
-- Troubleshooting Active Directory and PowerShell issues
-
-## Active Directory Structure
-
-The lab uses the `lab.local` domain with a fictional company OU named `Trey's Company`.
-
-The company structure includes department OUs such as:
-
-- HR
-- IT
-- Sales
-- Management
-- Gaming
-- Disabled Users
-
-Security groups include:
-
-- `HR_Users`
-- `IT_Admin`
-- `Sales_Users`
-- `Managers`
-- `Gaming_Admin`
+- PowerShell and the ActiveDirectory module
+- CSV-driven Joiner, Mover, and Leaver automation
+- Department-to-OU and department-to-group mapping
+- Duplicate and already-disabled account protection
+- `try` / `catch` and `-ErrorAction Stop`
+- Pre-validation before destructive account changes
+- CSV audit logging
+- OU, account-status, and group-membership verification
 
 ## Phase 1 — Active Directory Infrastructure
 
-The first phase focused on building and understanding the environment manually inside the Windows Server VM.
-
-Tasks included:
-
-- Installing/configuring Active Directory for the lab
-- Creating the company OU structure
-- Creating department OUs
-- Creating fictional employee accounts
-- Creating security groups
-- Assigning users to groups
-- Creating and applying Group Policy Objects (GPOs)
-
-### AD Structure
+I built the Active Directory structure manually to understand the underlying administration before automating it. This included OUs, users, security groups, and Group Policy configuration.
 
 ![Active Directory OU and group structure](Phase-1-AD-Infrastructure/Screenshots/AD-Structure.png)
 
-This structure became the foundation for the PowerShell automation added in Phase 2.
+## Phase 2 — IAM Joiner, Mover, and Leaver Automation
 
-## Phase 2 — PowerShell User Provisioning
+### Joiner Workflow
 
-The second phase focused on automating user provisioning instead of manually creating every employee through ADUC.
-
-The script:
-
-`Phase-2-PowerShell-Automation/UserProvisioning.ps1`
-
-reads fictional employee information from:
-
-`NewEmployees-Sample.csv`
-
-### Provisioning Workflow
-
-For each employee in the CSV, the script:
-
-1. Reads the employee's first name, last name, department, and job title.
-2. Generates a username using the employee's first initial and last name.
-3. Determines the correct Active Directory OU based on department.
-4. Determines the correct department security group.
-5. Checks Active Directory to see whether the username already exists.
-6. Skips existing accounts to prevent duplicate creation.
-7. Creates missing AD user accounts.
-8. Sets department and job-title attributes.
-9. Places the account in the correct OU.
-10. Enables the account.
-11. Requires a password change at first logon.
-12. Adds the account to the appropriate security group.
-13. Reports success, skipped accounts, or errors in PowerShell.
-
-### Password Handling
-
-The temporary password is requested at runtime with:
-
-```powershell
-Read-Host -AsSecureString
-```
-
-The password is not stored directly in the PowerShell script or CSV.
-
-## PowerShell Automation
-
-The provisioning script uses concepts and commands including:
-
-```powershell
-Import-Module ActiveDirectory
-Import-Csv
-Get-ADUser
-New-ADUser
-Add-ADGroupMember
-ForEach-Object
-try
-catch
-```
-
-Department mappings are handled through PowerShell hashtables so that employees can automatically be routed to the appropriate OU and group.
-
-## Automation Results
+`UserProvisioning.ps1` reads fictional employee records from `NewEmployees-Sample.csv`, generates usernames, maps departments to OUs/groups, checks for duplicates, creates missing accounts, sets attributes, requires password change at first logon, and assigns department security groups. The temporary password is requested at runtime and is not stored in this repository.
 
 ![PowerShell provisioning results](Phase-2-PowerShell-Automation/Screenshots/Provisioning-Results.png)
 
-The provisioning test successfully created missing users and assigned them to their correct department groups.
+### Mover Workflow
 
-The script was then run again to verify duplicate handling. Existing accounts were safely skipped rather than recreated.
+`UserMover.ps1` processes department/job changes from `EmployeeChanges-Sample.csv`. It captures the previous state, validates the requested department, updates AD attributes, removes old department access, adds new department access, moves the account to the correct OU, and records SUCCESS/ERROR results in a CSV audit log.
 
-This demonstrates that the provisioning workflow can be rerun without blindly creating duplicate accounts.
+A clean test moved Michael Carter (`mcarter`) from IT to Sales, including `IT_Admin` → `Sales_Users`, the Sales OU, and the Sales Systems Specialist title.
 
-## Verification
+![Mover success](Phase-2-PowerShell-Automation/Screenshots/Mover-Success.png)
 
-![Provisioned user group membership](Phase-2-PowerShell-Automation/Screenshots/Group-Membership.png)
+![Mover verification](Phase-2-PowerShell-Automation/Screenshots/Mover-Verification.png)
 
-After provisioning, I verified the resulting accounts in Active Directory Users and Computers.
+![Mover audit log](Phase-2-PowerShell-Automation/Screenshots/Mover-Log.png)
 
-For example, the Sales employee shown above:
+### Leaver Workflow
 
-- Exists in the Sales OU
-- Is a member of `Domain Users`
-- Is a member of the `Sales_Users` security group
+`UserOffboarding.ps1` verifies the account exists, skips already-disabled users, captures existing access, resolves and validates the `Disabled_Users` OU before making changes, disables the account, removes non-default security groups, retains `Domain Users`, moves the account to `Disabled_Users`, and records SUCCESS/ERROR results.
 
-This verifies that the automation performed both account creation and group assignment correctly.
+A clean test offboarded Gavin Long (`glong`). The account was disabled, moved to `Disabled_Users`, and removed from both `IT_Admin` and `Gaming_Admin`. The audit log preserved those previous memberships before removal.
 
-## Repository Structure
+![Offboarding success](Phase-2-PowerShell-Automation/Screenshots/Offboarding-Success.png)
+
+![Offboarding verification](Phase-2-PowerShell-Automation/Screenshots/Offboarding-Verification.png)
+
+## Troubleshooting and Safety Improvements
+
+Testing exposed realistic failure conditions that were used to harden the workflows:
+
+- A Mover group-name mismatch produced a partial change and led to stronger `try/catch` handling and `-ErrorAction Stop`.
+- An early Leaver test disabled an account and removed access before an OU-path problem stopped the final move.
+- The failed Leaver attempt was preserved as an ERROR audit record, manually remediated, and separately recorded as `SUCCESS-MANUAL-REPAIR`.
+- The Leaver workflow was then improved to validate the destination OU before destructive changes begin.
+- A second Leaver test completed cleanly end-to-end with SUCCESS status.
+
+These tests reinforced the importance of validation, audit trails, error handling, and recovery procedures in identity lifecycle management.
+
+## Repository Layout
 
 ```text
 Active-Directory-Sysadmin-Lab/
 ├── README.md
 ├── .gitignore
 ├── GITHUB-UPLOAD-CHECKLIST.md
-│
 ├── Phase-1-AD-Infrastructure/
 │   └── Screenshots/
 │       └── AD-Structure.png
-│
 └── Phase-2-PowerShell-Automation/
     ├── UserProvisioning.ps1
+    ├── UserMover.ps1
+    ├── UserOffboarding.ps1
     ├── NewEmployees-Sample.csv
+    ├── EmployeeChanges-Sample.csv
+    ├── EmployeeOffboarding-Sample.csv
+    ├── Logs/
+    │   ├── MoverLog-Sample.csv
+    │   └── OffboardingLog-Sample.csv
     └── Screenshots/
         ├── Provisioning-Script-1.png
         ├── Provisioning-Script-2.png
         ├── Provisioning-Results.png
-        └── Group-Membership.png
+        ├── Group-Membership.png
+        ├── Mover-Success.png
+        ├── Mover-Verification.png
+        ├── Mover-Log.png
+        ├── Offboarding-Success.png
+        └── Offboarding-Verification.png
 ```
 
-## Running the Script
+## Running the Scripts
 
-This project was designed for a controlled Active Directory lab environment.
+These scripts are intended for a controlled Active Directory lab. Review all domain names, OU mappings, group names, CSV paths, and logging paths before running them in another environment.
 
-Before running the script in another lab, review and update:
+## Next Phase — RBAC / Least Privilege
 
-- Domain name
-- OU distinguished names
-- Security-group names
-- CSV path/data
-- Password policy requirements
+The next phase will implement group-based resource authorization using Windows file shares and NTFS permissions:
 
-Requirements include:
+```text
+User -> Department Security Group -> Resource Permission
+```
 
-- Windows Server or an administrative Windows system with the Active Directory PowerShell module
-- Network/domain access to Active Directory
-- Permissions to create users
-- Permissions to modify group membership
+For example, `HR_Users` will receive access to an HR resource while an unrelated Sales user should receive Access Denied.
 
-## Problems I Troubleshot
+## Security Note
 
-Building the project also involved troubleshooting several issues, including:
-
-- Incorrect PowerShell syntax
-- Missing parentheses
-- CSV header mismatches
-- Incorrect Distinguished Names
-- Password-policy requirements
-- Existing user accounts
-- PowerShell session variables
-- AD OU path validation
-- Security-group mapping
-- Script file organization
-
-Working through these problems helped reinforce both PowerShell fundamentals and practical Active Directory troubleshooting.
-
-## What I Learned
-
-This project helped me progress from manually administering Active Directory to using PowerShell for repeatable administrative workflows.
-
-I gained hands-on experience with:
-
-- Building an Active Directory environment in a VM
-- Structuring users, departments, and groups
-- Querying Active Directory with PowerShell
-- Automating account creation
-- Handling duplicate accounts
-- Mapping business departments to technical access controls
-- Testing automation before making changes
-- Verifying the results in ADUC
-- Troubleshooting failed commands and configuration issues
-
-## Planned Improvements
-
-Future versions of the lab can include:
-
-- Provisioning logs
-- Unique temporary-password generation
-- Automated employee offboarding
-- Moving terminated users to `Disabled_Users`
-- Removing group memberships during offboarding
-- Inactive-account reporting
-- Password-expiration reporting
-- Computer inventory
-- File-share and NTFS permissions
-- Additional Group Policy hardening
-- Active Directory security monitoring
-- Microsoft Entra ID / hybrid identity expansion
-
-## Security Notes
-
-- All employees in this repository are fictional.
-- No real credentials are included.
-- No passwords are stored in the script.
-- The virtual machine itself is not uploaded.
-- VM disks, snapshots, ISO files, and exported appliances should not be committed to GitHub.
-- This project is a home lab and should not be treated as production-ready automation without additional validation, security controls, and review.
+All employee data in this repository is fictional. No passwords or credentials are stored in the project. Do not upload VM disks, snapshots, ISOs, exported appliances, private keys, or real employee information.
