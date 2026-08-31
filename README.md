@@ -1,4 +1,4 @@
-# Active Directory Sysadmin Lab
+# Active Directory IAM Lab
 
 A hands-on Windows Server / Active Directory home lab built and tested inside a virtual machine to practice core system-administration skills and PowerShell automation.
 
