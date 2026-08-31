@@ -74,7 +74,7 @@ These tests reinforced the importance of validation, audit trails, error handlin
 ## Repository Layout
 
 ```text
-Active-Directory-Sysadmin-Lab/
+Active-Directory-IAM-Lab/
 ├── README.md
 ├── .gitignore
 ├── GITHUB-UPLOAD-CHECKLIST.md
