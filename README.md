@@ -81,41 +81,95 @@ Active-Directory-IAM-Lab/
 ├── Phase-1-AD-Infrastructure/
 │   └── Screenshots/
 │       └── AD-Structure.png
-└── Phase-2-PowerShell-Automation/
-    ├── UserProvisioning.ps1
-    ├── UserMover.ps1
-    ├── UserOffboarding.ps1
-    ├── NewEmployees-Sample.csv
-    ├── EmployeeChanges-Sample.csv
-    ├── EmployeeOffboarding-Sample.csv
-    ├── Logs/
-    │   ├── MoverLog-Sample.csv
-    │   └── OffboardingLog-Sample.csv
+├── Phase-2-PowerShell-Automation/
+│   ├── UserProvisioning.ps1
+│   ├── UserMover.ps1
+│   ├── UserOffboarding.ps1
+│   ├── NewEmployees-Sample.csv
+│   ├── EmployeeChanges-Sample.csv
+│   ├── EmployeeOffboarding-Sample.csv
+│   ├── Logs/
+│   │   ├── MoverLog-Sample.csv
+│   │   └── OffboardingLog-Sample.csv
+│   └── Screenshots/
+│       ├── Provisioning-Script-1.png
+│       ├── Provisioning-Script-2.png
+│       ├── Provisioning-Results.png
+│       ├── Group-Membership.png
+│       ├── Mover-Success.png
+│       ├── Mover-Verification.png
+│       ├── Mover-Log.png
+│       ├── Offboarding-Success.png
+│       └── Offboarding-Verification.png
+└── Phase-3-RBAC-Least-Privilege/
+    ├── README.md
     └── Screenshots/
-        ├── Provisioning-Script-1.png
-        ├── Provisioning-Script-2.png
-        ├── Provisioning-Results.png
-        ├── Group-Membership.png
-        ├── Mover-Success.png
-        ├── Mover-Verification.png
-        ├── Mover-Log.png
-        ├── Offboarding-Success.png
-        └── Offboarding-Verification.png
+        ├── HR-NTFS-Permissions.png
+        ├── HR-Network-Share.png
+        ├── HR-Access-Granted-Modify.png
+        ├── HR-Access-Denied.png
+        ├── Mover-Sales-to-HR.png
+        ├── Mover-HR-Membership-Verification.png
+        └── Mover-RBAC-Access-Granted.png
 ```
 
 ## Running the Scripts
 
 These scripts are intended for a controlled Active Directory lab. Review all domain names, OU mappings, group names, CSV paths, and logging paths before running them in another environment.
 
-## Next Phase — RBAC / Least Privilege
+## Phase 3 — RBAC / Least Privilege
 
-The next phase will implement group-based resource authorization using Windows file shares and NTFS permissions:
+Implemented group-based resource authorization using Active Directory security groups, Windows file sharing, and NTFS permissions.
+
+The authorization model follows:
 
 ```text
 User -> Department Security Group -> Resource Permission
 ```
 
-For example, `HR_Users` will receive access to an HR resource while an unrelated Sales user should receive Access Denied.
+An HR resource was created at `C:\CompanyShares\HR` and shared as `\\Lab\hr`.
+
+- Removed broad `Users` access from the HR folder.
+- Assigned `HR_Users` Modify permission at the NTFS level.
+- Removed `Everyone` from the share permissions.
+- Assigned `HR_Users` Change + Read share permissions.
+- Retained administrative and SYSTEM access.
+- Verified an HR user could read and create files in the protected resource.
+- Verified a non-HR user authenticated successfully but received `Access is denied` when attempting to access the HR resource.
+
+### JML and RBAC Integration
+
+The existing Mover workflow was integrated with the RBAC model to demonstrate how a business-role change affects resource authorization.
+
+Michael Carter (`mcarter`) initially belonged to `Sales_Users` and was denied access to the HR resource. `UserMover.ps1` was then used to transfer the account from Sales to HR.
+
+The workflow:
+
+- Updated the department from Sales to HR.
+- Updated the job title to HR Systems Specialist.
+- Moved the account from the Sales OU to the HR OU.
+- Removed `Sales_Users`.
+- Added `HR_Users`.
+
+After the identity change, the same account successfully accessed `\\Lab\hr` without assigning permissions directly to the user.
+
+```text
+Business Role Change
+        ↓
+JML Mover Automation
+        ↓
+AD Security Group Membership
+        ↓
+RBAC Authorization
+        ↓
+Resource Access
+```
+Supporting evidence is documented in `Phase-3-RBAC-Least-Privilege`.
+
+## Next Phase — Privileged Account Separation / Administrative Least Privilege
+
+The next phase will focus on separating standard user identities from administrative identities and applying least privilege to privileged Active Directory administration.
+
 
 ## Security Note
 
