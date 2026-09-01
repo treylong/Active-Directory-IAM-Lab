@@ -137,6 +137,16 @@ An HR resource was created at `C:\CompanyShares\HR` and shared as `\\Lab\hr`.
 - Verified an HR user could read and create files in the protected resource.
 - Verified a non-HR user authenticated successfully but received `Access is denied` when attempting to access the HR resource.
 
+### RBAC Authorization Testing
+
+**HR NTFS permissions assigned through the `HR_Users` security group:**
+
+![HR NTFS Permissions](Phase-3-RBAC-Least-Privilege/Screenshots/HR-NTFS-Permissions.png)
+
+**Unauthorized access test — Sales user authenticated successfully but was denied access to the HR resource:**
+
+![HR Access Denied](Phase-3-RBAC-Least-Privilege/Screenshots/HR-Access-Denied.png)
+
 ### JML and RBAC Integration
 
 The existing Mover workflow was integrated with the RBAC model to demonstrate how a business-role change affects resource authorization.
@@ -152,6 +162,16 @@ The workflow:
 - Added `HR_Users`.
 
 After the identity change, the same account successfully accessed `\\Lab\hr` without assigning permissions directly to the user.
+
+### Mover-to-RBAC Verification
+
+**Mover verification — Michael's account was transferred to HR and `HR_Users` membership replaced his previous Sales access:**
+
+![Mover HR Membership Verification](Phase-3-RBAC-Least-Privilege/Screenshots/Mover-HR-Membership-Verification.png)
+
+**Access after the role change — the same account successfully accessed the HR resource through its new `HR_Users` membership:**
+
+![Mover RBAC Access Granted](Phase-3-RBAC-Least-Privilege/Screenshots/Mover-RBAC-Access-Granted.png)
 
 ```text
 Business Role Change
