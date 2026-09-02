@@ -186,9 +186,75 @@ Resource Access
 ```
 Supporting evidence is documented in `Phase-3-RBAC-Least-Privilege`.
 
-## Next Phase — Privileged Account Separation / Administrative Least Privilege
+## Phase 4 — Privileged Account Separation / Administrative Least Privilege
 
-The next phase will focus on separating standard user identities from administrative identities and applying least privilege to privileged Active Directory administration.
+Implemented privileged account separation and scoped Active Directory administration to demonstrate least-privilege access for administrative identities.
+
+A dedicated privileged identity was separated from the user's standard business identity:
+
+```text
+Standard Identity
+mcarter
+    |
+    +-- Normal business access
+
+Privileged Identity
+adm-mcarter
+    |
+    v
+HR_Delegated_Admins
+    |
+    v
+Scoped Delegation on HR OU
+    |
+    v
+Reset User Passwords
+```
+
+The privileged account `adm-mcarter` was placed in a dedicated `Privileged_Accounts` OU and assigned to the `HR_Delegated_Admins` security group.
+
+Rather than granting broad privileges such as Domain Admin membership, the Delegation of Control Wizard was used to grant `HR_Delegated_Admins` only the ability to reset user passwords and force password changes within the HR OU.
+
+### Privileged Access Testing
+
+The delegated administrative identity was tested against users both inside and outside its authorized scope.
+
+- HR user `sjones` — password reset succeeded.
+- Sales user `ogarcia` — the same password-reset operation returned `Access is denied`.
+- `adm-mcarter` group membership was verified as only `Domain Users` and `HR_Delegated_Admins`.
+- No Domain Admin, Enterprise Admin, Administrators, or Account Operators membership was assigned.
+
+**Delegated password reset within the authorized HR scope:**
+
+![Delegated Admin HR Reset Success](Phase-4-Privileged-Access/Screenshots/Delegated-Admin-HR-Reset-Success.png)
+
+**The same delegated administrator was denied when attempting the operation outside the HR scope:**
+
+![Delegated Admin Sales Reset Denied](Phase-4-Privileged-Access/Screenshots/Delegated-Admin-Sales-Reset-Denied.png)
+
+**Privileged account group membership confirms scoped access without broad administrative group membership:**
+
+![Privileged Group Membership](Phase-4-Privileged-Access/Screenshots/Privileged-Group-Membership.png)
+
+This phase demonstrates:
+
+```text
+Privileged Account Separation
+        ↓
+Security Group-Based Delegation
+        ↓
+Scoped Administrative Permission
+        ↓
+Authorized HR Action = SUCCESS
+        ↓
+Out-of-Scope Sales Action = DENIED
+```
+
+Supporting evidence and implementation details are documented in `Phase-4-Privileged-Access`.
+
+## Next Phase — Identity Governance / Access Reviews
+
+The next phase will focus on identity governance concepts including stale-account identification, access reviews, inactive-user reporting, and remediation of unnecessary access.
 
 
 ## Security Note
