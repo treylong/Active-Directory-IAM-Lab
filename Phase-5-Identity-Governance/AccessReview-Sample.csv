@@ -1,0 +1,11 @@
+SamAccountName,Department,Enabled,Groups,ReviewStatus
+johndoe,,True,"Domain Users, Sales_Users",REVIEW
+swilson,,True,"Domain Users, IT_Admin",REVIEW
+edavis,,True,"Domain Users, HR_Users",REVIEW
+sbrown,,True,"Domain Users, HR_Users",REVIEW
+ogarcia,,True,"Domain Users, Sales_Users",REVIEW
+dsmith,,True,"Domain Users, Managers",REVIEW
+elong,,True,"Domain Users, HR_Users, Managers",REVIEW
+jwilson,HR,True,"Domain Users, HR_Users",REVIEW
+erodriguez,HR,True,"Domain Users, HR_Users",REVIEW
+slong,,True,"Domain Users",LOW ACCESS
