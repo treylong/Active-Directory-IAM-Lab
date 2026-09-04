@@ -473,9 +473,52 @@ The completed reporting workflow generates a CSV audit trail and provides the nu
 
 ---
 
-## Next Phase — Microsoft Entra ID / Hybrid Cloud IAM
 
-Phase 7 will extend the identity lab into Microsoft Entra ID and cloud identity administration, with the exact implementation based on the Microsoft environment available for the lab.
+## Phase 7 — Microsoft Entra ID / Cloud IAM
+
+Extended the IAM lab into Microsoft Entra ID to demonstrate cloud identity lifecycle management, role-based access, privileged-account separation, MFA, delegated administration, and audit verification.
+
+- Created an **Edward IAM Lab** Entra environment and department-based security groups.
+- Performed a cloud **Joiner → Mover → Leaver** lifecycle using a fictional Sarah Jones identity.
+- Updated identity attributes and changed group access from `HR_Users` to `Sales_Users` during the mover workflow.
+- Removed business access and disabled the user during the leaver workflow.
+- Created a separate privileged identity, `adm-mcarter`, for administrative tasks.
+- Assigned only the built-in **User Administrator** role instead of Global Administrator.
+- Registered MFA for the privileged administrative identity.
+- Used `adm-mcarter` to successfully reset a controlled standard user's password.
+- Demonstrated a least-privilege boundary when the delegated admin received a 401 while attempting to access audit-log data.
+- Verified the delegated password-reset action from the Global Administrator audit view and confirmed `adm-mcarter` as the actor.
+- Deleted the temporary delegated test identity after validation.
+
+### Cloud JML Evidence
+
+![Joiner HR Access](Phase-7-Microsoft-Entra-IAM/Screenshots/Joiner-HR-Access.png)
+
+![Mover Sales Access](Phase-7-Microsoft-Entra-IAM/Screenshots/Mover-Sales-Access.png)
+
+![Leaver Account Disabled](Phase-7-Microsoft-Entra-IAM/Screenshots/Leaver-Account-Disabled.png)
+
+### Privileged Access & Least Privilege
+
+![User Administrator Role](Phase-7-Microsoft-Entra-IAM/Screenshots/User-Administrator-Role.png)
+
+![Least Privilege Audit Denied](Phase-7-Microsoft-Entra-IAM/Screenshots/Least-Privilege-Audit-Denied.png)
+
+**Phase 7 concepts:** Microsoft Entra ID · Cloud IAM · JML · RBAC · Security Groups · Privileged Account Separation · MFA · User Administrator · Least Privilege · Delegated Administration · Audit Logs
+
+[View the complete Phase 7 documentation](Phase-7-Microsoft-Entra-IAM/README.md)
+
+---
+
+## Project Status — Seven-Phase IAM Lab Complete
+
+The core portfolio project now covers:
+
+`AD Infrastructure → JML Automation → RBAC → Privileged Access → Identity Governance → Security Auditing → Microsoft Entra ID / Cloud IAM`
+
+The project demonstrates a complete hands-on IAM progression across on-premises Active Directory and Microsoft Entra ID.
+
+---
 
 
 ## Security Note
