@@ -414,9 +414,69 @@ This phase demonstrates a practical identity-governance workflow rather than aut
 
 > **Lab note:** All identities and data are fictional and used only in an isolated home lab. The stale-account case is explicitly documented as a simulation. Production identity-governance programs should use approved inactivity thresholds, authoritative HR or identity sources, exception handling, ownership/attestation workflows, change controls, and centralized audit logging.
 
-## Next Phase — AD Auditing & Security Monitoring
+## Phase 6 — AD Auditing & Security Monitoring
 
-Phase 6 will focus on Active Directory auditing and security monitoring, including Windows security events, authentication activity, account-management events, and evidence collection for IAM/security investigations.
+Phase 6 extends the IAM lab into security monitoring and audit evidence collection by using Windows Security logs and PowerShell to track identity-related administrative activity.
+
+### Objectives
+
+- Monitor IAM-relevant Active Directory security events
+- Identify the actor responsible for administrative changes
+- Track affected users, group memberships, and account states
+- Parse Windows Security event XML with PowerShell
+- Normalize audit data into readable fields
+- Generate a reusable 30-day audit report
+- Export audit evidence to CSV
+
+### Security Events Monitored
+
+| Event ID | Activity |
+| --- | --- |
+| 4722 | User account enabled |
+| 4724 | Password reset attempt |
+| 4725 | User account disabled |
+| 4728 | Member added to a security-enabled global group |
+| 4729 | Member removed from a security-enabled global group |
+
+Controlled tests were performed using fictional lab identities to generate and investigate each event type.
+
+PowerShell `Get-WinEvent` was used to retrieve the events from the Windows Security log. Event XML was then parsed to extract and normalize fields including the administrative actor, affected account, group member, and security group.
+
+The final `ADAuditReport.ps1` script reviews the previous 30 days of relevant Security events and exports the normalized results to CSV. The final lab run reviewed 59 matching events.
+
+### Audit Evidence
+
+![AD Audit Timeline](Phase-6-AD-Auditing-Security-Monitoring/Screenshots/Audit-Timeline-PowerShell.png)
+
+The normalized audit timeline correlates account-management and group-membership events with the administrative actor and affected identity.
+
+![AD Audit Report Final Run](Phase-6-AD-Auditing-Security-Monitoring/Screenshots/Audit-Report-Final-Run.png)
+
+The completed reporting workflow generates a CSV audit trail and provides the number of reviewed events and the configured 30-day review window.
+
+### Skills Demonstrated
+
+- Active Directory security auditing
+- Windows Security event investigation
+- Event Viewer analysis
+- PowerShell `Get-WinEvent`
+- Windows event XML parsing
+- Group membership change monitoring
+- Account lifecycle monitoring
+- Password-reset auditing
+- Privileged action attribution
+- Audit trail generation
+- CSV security reporting
+- Evidence collection and verification
+
+[View the complete Phase 6 documentation](Phase-6-AD-Auditing-Security-Monitoring/README.md)
+
+---
+
+## Next Phase — Microsoft Entra ID / Hybrid Cloud IAM
+
+Phase 7 will extend the identity lab into Microsoft Entra ID and cloud identity administration, with the exact implementation based on the Microsoft environment available for the lab.
+
 
 ## Security Note
 
